@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список товаров</title>
+</head>
+<body>
+    <h1>Товары</h1>
+
+    {% if products %}
+        <ul>
+            {% for product in products %}
+                <li>
+                    <strong>{{ product.name }}</strong><br>
+                    {{ product.description }}<br>
+                    Цена: {{ product.price }} руб.<br>
+                    {% if product.in_stock %}
+                        ✅ В наличии
+                    {% else %}
+                        ❌ Нет в наличии
+                    {% endif %}
+                </li>
+                <hr>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Нет доступных товаров.</p>
+    {% endif %}
+</body>
+</html>
