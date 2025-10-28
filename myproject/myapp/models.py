@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 
 
@@ -15,6 +17,10 @@ class Product(models.Model):
         blank=True
     )
     image = models.ImageField(upload_to='product_images/', blank=True, null=True)
+
+    @property
+    def price_with_vat(self):
+        return self.price * Decimal('1.2')
 
 
 class Category(models.Model):

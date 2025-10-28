@@ -16,6 +16,7 @@
         <h2>{{ product.name }}</h2>
         <p>{{ product.description }}</p>
         <p><strong>Цена:</strong> {{ product.price }} руб.</p>
+        <p><strong>Цена с НДС:</strong> {{ product.price_with_vat }} руб.</p>
         {% if product.in_stock %}
             <p><span class="badge bg-success">В наличии</span></p>
         {% else %}
