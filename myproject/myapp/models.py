@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -8,7 +9,11 @@ class Product(models.Model):
 
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )
     in_stock = models.BooleanField(default=True)
     category = models.ForeignKey(
         'Category',
@@ -21,6 +26,9 @@ class Product(models.Model):
     @property
     def price_with_vat(self):
         return self.price * Decimal('1.2')
+
+    def apply_discount(self, percent):
+        return float(self.price) * (1 - percent / 100)
 
 
 class Category(models.Model):

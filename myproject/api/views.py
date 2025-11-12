@@ -2,7 +2,9 @@ from pprint import pprint
 
 from django.shortcuts import render
 from rest_framework import status
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from myapp.models import Product
@@ -28,6 +30,9 @@ def test_api(request):
 
 
 class ProductDetailAPIView(APIView):
+    # authentication_classes = [SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
+
     def get(self, request, pk):
         try:
             product = Product.objects.get(pk=pk)
@@ -42,6 +47,9 @@ class ProductDetailAPIView(APIView):
 
 
 class ProductListAPIView(APIView):
+    # authentication_classes = [SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
+
     def get(self, request):
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
@@ -49,6 +57,8 @@ class ProductListAPIView(APIView):
 
 
 class ProductCreateAPIView(APIView):
+    # authentication_classes = [SessionAuthentication]
+    # permission_classes = [IsAuthenticated]
     def post(self, request):
         serializer = ProductSerializer(data=request.data)  # десериализация входных данных
         if serializer.is_valid():  # проверка данных
