@@ -2,3 +2,6 @@ Django
 django-environ
 psycopg2-binary
 pillow
+Faker
+djangorestframework
+djangorestframework-simplejwt

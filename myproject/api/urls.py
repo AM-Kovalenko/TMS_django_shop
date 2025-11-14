@@ -1,7 +1,10 @@
 from django.urls import path
 
-from api.views import test_api, ProductDetailAPIView, ProductListAPIView, ProductCreateAPIView, set_cookie_example, get_cookie_example
-
+from api.views import test_api, ProductDetailAPIView, ProductListAPIView, ProductCreateAPIView, set_cookie_example, get_cookie_example, RegisterAPIView, LogoutAPIView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,   # выдача access + refresh
+    TokenRefreshView,      # обновление access по refresh
+)
 
 urlpatterns = [
     path('test/', test_api),
@@ -11,4 +14,10 @@ urlpatterns = [
 
     path('set-cookie/', set_cookie_example),
     path('get-cookie/', get_cookie_example),
+
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    path('register/', RegisterAPIView.as_view(), name='api_register'),
+    path('logout/', LogoutAPIView.as_view(), name='api_logout'),  # опц: отзыв refresh
 ]

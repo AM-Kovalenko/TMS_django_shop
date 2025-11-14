@@ -1,7 +1,6 @@
 from pprint import pprint
 
-from django.shortcuts import render
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
@@ -10,7 +9,9 @@ from rest_framework.response import Response
 from myapp.models import Product
 from rest_framework.views import APIView
 
-from api.serializers import ProductSerializer
+from api.serializers import ProductSerializer, RegisterSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @api_view(['GET'])
@@ -47,8 +48,8 @@ class ProductDetailAPIView(APIView):
 
 
 class ProductListAPIView(APIView):
-    # authentication_classes = [SessionAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         products = Product.objects.all()
@@ -86,3 +87,35 @@ def get_cookie_example(request):
     if token:
         return Response({'message': 'Cookie найден', 'token': token})
     return Response({'message': 'Cookie не найден'}, status=404)
+
+
+class RegisterAPIView(APIView):
+    permission_classes = [permissions.AllowAny]  # регистрация открыта
+
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            data = {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+            }
+            return Response(data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutAPIView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        refresh_token = request.data.get("refresh")
+        if not refresh_token:
+            return Response({"detail": "Refresh token required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            token = RefreshToken(refresh_token)
+            # помечаем refresh в blacklist
+            token.blacklist()
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response({"detail": "Token invalid or already blacklisted"}, status=status.HTTP_400_BAD_REQUEST)

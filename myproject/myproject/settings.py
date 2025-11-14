@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     'myapp',
     'rest_framework',
     'api',
+    'rest_framework_simplejwt',
+    # опционально для blacklist:
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'myproject.middleware.request_timer.RequestTimerMiddleware'
 ]
 
 ROOT_URLCONF = 'myproject.urls'
@@ -139,3 +143,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+
+from datetime import timedelta
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # можно оставить SessionAuthentication для веб-страниц, если нужно:
+        # 'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',  # по умолчанию защищаем все API
+    )
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,   # если True — при refresh выдается новый refresh
+    'BLACKLIST_AFTER_ROTATION': True, # требует token_blacklist app
+    'ALGORITHM': 'HS256',
+    # опционально укажи SECRET_KEY, по умолчанию используется Django SECRET_KEY
+}
