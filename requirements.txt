@@ -5,3 +5,5 @@ pillow
 Faker
 djangorestframework
 djangorestframework-simplejwt
+pymemcache
+memcached
