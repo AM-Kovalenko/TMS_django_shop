@@ -1,6 +1,9 @@
 from django.urls import path
 
-from api.views import test_api, ProductDetailAPIView, ProductListAPIView, ProductCreateAPIView, set_cookie_example, get_cookie_example, RegisterAPIView, LogoutAPIView
+from api.views import (
+    test_api, ProductDetailAPIView, ProductListAPIView, ProductCreateAPIView, set_cookie_example,
+    get_cookie_example, RegisterAPIView, LogoutAPIView, SetDiscountAPIView
+)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,   # выдача access + refresh
     TokenRefreshView,      # обновление access по refresh
@@ -20,4 +23,5 @@ urlpatterns = [
 
     path('register/', RegisterAPIView.as_view(), name='api_register'),
     path('logout/', LogoutAPIView.as_view(), name='api_logout'),  # опц: отзыв refresh
+    path("products/<int:pk>/discount/", SetDiscountAPIView.as_view()),
 ]

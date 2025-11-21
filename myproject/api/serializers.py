@@ -51,3 +51,21 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class ProductDiscountSerializer(serializers.ModelSerializer):
+    discount_percent = serializers.IntegerField(
+        min_value=0,
+        max_value=100,
+        required=True,
+        help_text="Скидка в процентах: 0-100"
+    )
+
+    class Meta:
+        model = Product
+        fields = ["discount_percent"]
+
+    def update(self, instance, validated_data):
+        instance.discount_percent = validated_data["discount_percent"]
+        instance.save()
+        return instance

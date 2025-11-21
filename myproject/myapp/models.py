@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 
@@ -22,6 +22,7 @@ class Product(models.Model):
         blank=True
     )
     image = models.ImageField(upload_to='product_images/', blank=True, null=True)
+    discount_percent = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(100)])
 
     @property
     def price_with_vat(self):

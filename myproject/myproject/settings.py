@@ -125,7 +125,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
@@ -143,7 +142,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-
 from datetime import timedelta
 
 REST_FRAMEWORK = {
@@ -158,7 +156,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -191,3 +189,67 @@ CACHES = {
 #         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
 #     }
 # }
+
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "formatters": {
+        "simple": {
+            "format": "[{levelname}] {asctime} {message}",
+            "style": "{",
+        },
+    },
+
+    "handlers": {
+        # ---- системный лог Django ----
+        "django_file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOG_DIR, "django.log"),
+            "formatter": "simple",
+        },
+
+        "app_file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOG_DIR, "app.log"),
+            "formatter": "simple",
+        },
+
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+
+    "loggers": {
+        # Основной Django логгер
+        "django": {
+            "handlers": ["django_file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+
+        # Логи сервера runserver — запросы типа "GET /..."
+        "django.server": {
+            "handlers": ["django_file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+
+        # Unauthorized / Forbidden / CSRF логи
+        "django.security": {
+            "handlers": ["django_file", "console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+
+        "api": {
+            "handlers": ["app_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
