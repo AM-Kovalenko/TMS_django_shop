@@ -3,6 +3,8 @@ from pprint import pprint
 from django.core.cache import cache
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, permissions
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view
@@ -19,7 +21,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.permissions import IsManager, IsClient
 import logging
+
 logger = logging.getLogger("api")
+
 
 @api_view(['GET'])
 def test_api(request):
@@ -56,23 +60,48 @@ class ProductDetailAPIView(APIView):
 
 class ProductListAPIView(APIView):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsClient]
+    permission_classes = [IsAuthenticated]
 
-
+    @swagger_auto_schema(
+        operation_summary="Список продуктов",
+        operation_description="Получение списка продуктов с фильтрацией",
+        responses={
+            200: ProductSerializer(many=True)
+        },
+    )
     # @method_decorator(cache_page(30))
     def get(self, request):
-        print(">>>> get")
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 
 
 class ProductCreateAPIView(APIView):
-
-
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsManager]
 
+    @swagger_auto_schema(
+        operation_summary="Создать продукт",
+        operation_description="Создание нового товара. Требуются права менеджера.",
+        request_body=ProductSerializer,
+        responses={
+            201: """ some text .
+            
+            {
+                "id": 285,
+                "name": "string",
+                "description": "string",
+                "price": "123.00",
+                "in_stock": true,
+                "category": 1,
+                "image": null
+            }""",
+
+            400: 'Bad Request',
+            401: 'Unauthorized',
+            403: 'Forbidden'
+        },
+    )
     def post(self, request):
         serializer = ProductSerializer(data=request.data)  # десериализация входных данных
         if serializer.is_valid():  # проверка данных
@@ -105,6 +134,19 @@ def get_cookie_example(request):
 class RegisterAPIView(APIView):
     permission_classes = [permissions.AllowAny]  # регистрация открыта
 
+    @swagger_auto_schema(
+        operation_summary="Регистрация пользователя",
+        operation_description="Создание нового аккаунта. Пароль должен быть не менее 8 символов.",
+        request_body=RegisterSerializer,
+        responses={
+            201: """{
+                "id": 6,
+                "username": "client",
+                "email": "user@example.com"
+            }""",
+            400: "Ошибки валидации данных"
+        }
+    )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -149,5 +191,3 @@ class SetDiscountAPIView(APIView):
                 "discount_percent": product.discount_percent
             })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-

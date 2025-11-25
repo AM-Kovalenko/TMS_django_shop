@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     # опционально для blacklist:
     'rest_framework_simplejwt.token_blacklist',
     # 'debug_toolbar'
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [
@@ -251,5 +252,15 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
+    },
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
     },
 }
